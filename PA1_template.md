@@ -1,24 +1,21 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 
 
-```{r}
+
+```r
 url <- "http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 ```
 
-Data for this project comes from `r url`
+Data for this project comes from http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip
 
 Download the data, and capture and report metadata
 
 
-```{r}
+
+```r
 zipFile <-"activity.zip"
 dataFile <- "activity.csv"
 dataInfoFile <- "dataSourceInformation.csv"
@@ -44,6 +41,16 @@ write.csv( data.frame(
         , file = dataInfoFile
         , row.names = FALSE )
 print(read.csv( dataInfoFile ))
+```
+
+```
+##                                                               Source
+## 1 http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip
+##         Download_Date           File_Date
+## 1 2015-09-12 20:52:34 2014-02-11 10:08:00
+```
+
+```r
 activity <- read.csv(dataFile)
 ```
 
@@ -51,20 +58,24 @@ activity <- read.csv(dataFile)
 ## What is mean total number of steps taken per day?
 
 
-```{r}
+
+```r
 steps<-aggregate(steps ~ date, activity, sum)[,2]
 ```
 
 Steps Per Day
 
-- Mean:   `r format(mean(steps), nsmall=2)`  
-- Median:  `r median(steps)`
+- Mean:   10766.19  
+- Median:  10765
 
 
 
-```{r}
+
+```r
 hist(steps,breaks=10,main="Histogram of steps per day")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
 
 
 
