@@ -1,25 +1,79 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
+title: "Reproducible Class Assignment Week 2"
+output: html_document
 ---
 
+```{r}
+url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+```
 
-## Loading and preprocessing the data
+Data for this project comes from `r url`
 
-
-
-## What is mean total number of steps taken per day?
-
-
-
-## What is the average daily activity pattern?
+Download the data, and capture and report metadata
 
 
+```{r}
+useCacheData <- TRUE
+target <-"rawData.zip"
+dataFile <- "activity.csv"
+dataInfoFile <- "dataSourceInformation.csv"
 
-## Imputing missing values
+    #Save some bandwidth if we can use cached data
+if( !useCacheData || ! file.exists(dataFile) || ! file.exists(dataInfoFile )) {
+        #Download data
+    download.file(url,target)
+    zipInfo <- unzip(target,list=TRUE)
+        #Expecting a single csv file, abort if that is not the case
+    stopifnot(nrow(zipInfo)==1)
+    stopifnot(zipInfo[1,"Name"]==dataFile)
+    unzip(target)
+    stopifnot(file.exists(dataFile))
+    
+        #Create record of data source.
+        #todo: structure this as rows instead of columns
+    write.csv( data.frame(
+                    Source=url
+                  , Download_Date = as.POSIXlt(Sys.time(),"UTC")
+                  , File_Date = zipInfo[1,"Date"])
+            , file = dataInfoFile
+            , row.names = FALSE )
+}
+activity <- read.csv(dataFile)
+print(read.csv( dataInfoFile ))
+```
 
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+```{r}
+
+    #Load up a few constants
+useCacheData <- TRUE
+url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+target <-"rawData.zip"
+dataFile <- "activity.csv"
+dataInfoFile <- "dataSourceInformation.csv"
+
+    #Save some bandwidth if we can use cached data
+if( !useCacheData || ! file.exists(dataFile) || ! file.exists(dataInfoFile )) {
+        #Download data
+    download.file(url,target)
+    zipInfo <- unzip(target,list=TRUE)
+        #Expecting a single csv file, abort if that is not the case
+    stopifnot(nrow(zipInfo)==1)
+    stopifnot(zipInfo[1,"Name"]==dataFile)
+    unzip(target)
+    stopifnot(file.exists(dataFile))
+    
+        #Create record of data source.
+        #todo: structure this as rows instead of columns
+    write.csv( data.frame(
+                    Source=url
+                  , Download_Date = as.POSIXlt(Sys.time(),"UTC")
+                  , File_Date = zipInfo[1,"Date"])
+            , file = dataInfoFile
+            , row.names = FALSE )
+}
+activity <- read.csv(dataFile)
+print(read.csv( dataInfoFile ))
+```
+
