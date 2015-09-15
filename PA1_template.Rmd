@@ -53,12 +53,14 @@ activity <- read.csv(dataFile)
 
 ```{r}
 steps<-aggregate(steps ~ date, activity, sum)[,2]
+meanSteps <- mean(steps)
+medianSteps <- median(steps)
 ```
 
 Steps Per Day
 
-- Mean:   `r format(mean(steps), nsmall=2)`  
-- Median:  `r median(steps)`
+- Mean:   `r sprintf("%2.2f", meanSteps)`  
+- Median:  `r sprintf("%2.2f", medianSteps)`
 
 
 
@@ -70,10 +72,88 @@ hist(steps,breaks=10,main="Histogram of steps per day")
 
 ## What is the average daily activity pattern?
 
+```{r}
+    # Get steps averaged by time interval
+steps <- aggregate(steps ~ interval, activity, mean, rm.na=TRUE)
+    # Make time more readable. Use 24 hour hh:mm format.
+steps$time <- sprintf("%02d:%02d", steps$interval / 100, steps$interval %% 100)
+    # sort by steps and extract the top ten.
+topStepTimes <- steps[order(0.0-steps$steps),3:2][1:10,]
+```
+
+The time interval with most steps is `r topStepTimes[1,1]`, with an average of `r topStepTimes[1,2]` steps per day.
+
+All of the ten intervals with the most average steps were near this time.
+
+```{r}
+print(topStepTimes, row.names = FALSE)
+```
+
+The step distribution through the day is shown in this graph
+
+```{r}
+plot(steps[,1:2]
+     , type="l"
+     , main="Average steps per five minute intervals"
+     , xlab="Hour of the day"
+     , xaxt="n")
+    # Replace the time format used in the dataset by the hour of the day on the x axis.
+    # Put ticks for even numbered hours
+axis(1, at=0:12*200, labels=0:12*2)
+```
+
 
 
 ## Imputing missing values
+```{r}
+naCount <- sum(is.na(activity$steps))
+naPercent <- 100 * naCount / nrow(activity)
+```
 
+The source data has `r naCount` missing data points. This represents `r sprintf( "%2.2f", naPercent)`% of the values
+
+We are going to replace the missing data points with the average for that time interval across all days.
+
+
+```{r}
+    #compute mean steps by interval
+meanStepsByInterval <- aggregate(steps ~ interval, activity, mean, rm.na=TRUE)
+names(meanStepsByInterval) <- c("interval", "mean")
+    #add a column for the mean
+adjustedData <- merge(activity,meanStepsByInterval,by.x="interval",by.y="interval")
+    #add a column, if na then use the mean, otherwise the actual step count
+adjustedData$steps.adjusted <- ifelse(is.na(adjustedData$steps), adjustedData$mean, adjustedData$steps)
+```
+
+The first few rows of the imputed dataset
+```{r}
+adjustedData[1:5,]
+```
+
+```{r}
+    #sum by dates, then drop down to a single column of steps.
+steps<-aggregate(steps.adjusted ~ date, adjustedData, sum)[,2]
+meanSteps2 <- mean(steps)
+medianSteps2 <- median(steps)
+```
+
+Steps Per Day
+
+- Mean:   `r sprintf("%2.2f", meanSteps2)`  
+- Median:  `r sprintf("%2.2f", medianSteps2)`
+
+```{r}
+meanDif <- 100 * (meanSteps2 - meanSteps) / meanSteps
+medianDif <- 100 * (medianSteps2 - medianSteps) / medianSteps
+```
+
+These values different from the original values by `r sprintf("%2.2f", meanDif)`% and 
+`r sprintf("%2.2f", medianDif)`% respectively
+
+
+```{r}
+hist(steps,breaks=10,main="Histogram of adjusted steps per day")
+```
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
