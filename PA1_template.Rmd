@@ -83,13 +83,13 @@ topStepTimes <- steps[order(0.0-steps$steps),3:2][1:10,]
 
 The time interval with most steps is `r topStepTimes[1,1]`, with an average of `r topStepTimes[1,2]` steps per day.
 
-All of the ten intervals with the most average steps were near this time.
+All of the top ten intervals with the most average steps were near this time.
 
 ```{r}
 print(topStepTimes, row.names = FALSE)
 ```
 
-The step distribution through the day is shown in this graph
+The step distribution throughout the day is shown in this graph
 
 ```{r}
 plot(steps[,1:2]
@@ -125,7 +125,7 @@ adjustedData <- merge(activity,meanStepsByInterval,by.x="interval",by.y="interva
 adjustedData$steps.adjusted <- ifelse(is.na(adjustedData$steps), adjustedData$mean, adjustedData$steps)
 ```
 
-The first few rows of the imputed dataset
+The first few rows of the imputted dataset
 ```{r}
 adjustedData[1:5,]
 ```
@@ -147,7 +147,7 @@ meanDif <- 100 * (meanSteps2 - meanSteps) / meanSteps
 medianDif <- 100 * (medianSteps2 - medianSteps) / medianSteps
 ```
 
-These values different from the original values by `r sprintf("%2.2f", meanDif)`% and 
+These values differ from the original values by `r sprintf("%2.2f", meanDif)`% and 
 `r sprintf("%2.2f", medianDif)`% respectively
 
 
@@ -156,4 +156,41 @@ hist(steps,breaks=10,main="Histogram of adjusted steps per day")
 ```
 
 
+
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Columns for the "dayOfWeek" and "weekend" are added to the data set.
+
+```{r}
+adjustedData$dayOfWeek <- weekdays(as.POSIXlt(adjustedData$date))
+adjustedData$weekend <- ifelse(adjustedData$dayOfWeek == "Saturday" | adjustedData$dayOfWeek == "Sunday"
+                                 , "weekend", "weekday")
+```
+
+Then an aggregate dataset is generate around interval and weekend
+
+```{r}
+steps<-aggregate(steps.adjusted ~ interval + weekend, adjustedData, mean)
+```
+
+The lattice package is used to generate the plot
+
+
+```{r}
+    #Install lattice, if necessary
+if( ! exists("xyplot") ) {
+    if( ! is.element( "lattice", installed.packages())) {
+        install.packages("lattice")
+    }
+    library(lattice)
+}
+    #generate the plot
+xyplot( steps.adjusted ~ interval | weekend
+        , data=steps
+        , layout = c(1,2)
+        , panel="panel.lines"
+        , xlab="Time Interval"
+        , ylab = "Number of Steps" )
+
+```
+

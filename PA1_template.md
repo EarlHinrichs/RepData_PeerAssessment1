@@ -95,7 +95,7 @@ topStepTimes <- steps[order(0.0-steps$steps),3:2][1:10,]
 
 The time interval with most steps is 08:35, with an average of 206.1698113 steps per day.
 
-All of the ten intervals with the most average steps were near this time.
+All of the top ten intervals with the most average steps were near this time.
 
 
 ```r
@@ -116,7 +116,7 @@ print(topStepTimes, row.names = FALSE)
 ##  09:00 143.4528
 ```
 
-The step distribution through the day is shown in this graph
+The step distribution throughout the day is shown in this graph
 
 
 ```r
@@ -157,7 +157,7 @@ adjustedData <- merge(activity,meanStepsByInterval,by.x="interval",by.y="interva
 adjustedData$steps.adjusted <- ifelse(is.na(adjustedData$steps), adjustedData$mean, adjustedData$steps)
 ```
 
-The first few rows of the imputed dataset
+The first few rows of the imputted dataset
 
 ```r
 adjustedData[1:5,]
@@ -191,7 +191,7 @@ meanDif <- 100 * (meanSteps2 - meanSteps) / meanSteps
 medianDif <- 100 * (medianSteps2 - medianSteps) / medianSteps
 ```
 
-These values different from the original values by 0.00% and 
+These values differ from the original values by 0.00% and 
 0.01% respectively
 
 
@@ -203,4 +203,52 @@ hist(steps,breaks=10,main="Histogram of adjusted steps per day")
 ![](PA1_template_files/figure-html/unnamed-chunk-13-1.png) 
 
 
+
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Columns for the "dayOfWeek" and "weekend" are added to the data set.
+
+
+```r
+adjustedData$dayOfWeek <- weekdays(as.POSIXlt(adjustedData$date))
+adjustedData$weekend <- ifelse(adjustedData$dayOfWeek == "Saturday" | adjustedData$dayOfWeek == "Sunday"
+                                 , "weekend", "weekday")
+```
+
+Then an aggregate dataset is generate around interval and weekend
+
+
+```r
+steps<-aggregate(steps.adjusted ~ interval + weekend, adjustedData, mean)
+```
+
+The lattice package is used to generate the plot
+
+
+
+```r
+    #Install lattice, if necessary
+if( ! exists("xyplot") ) {
+    if( ! is.element( "lattice", installed.packages())) {
+        install.packages("lattice")
+    }
+    library(lattice)
+}
+```
+
+```
+## Warning: package 'lattice' was built under R version 3.2.2
+```
+
+```r
+    #generate the plot
+xyplot( steps.adjusted ~ interval | weekend
+        , data=steps
+        , layout = c(1,2)
+        , panel="panel.lines"
+        , xlab="Time Interval"
+        , ylab = "Number of Steps" )
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-16-1.png) 
+
